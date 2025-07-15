@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 
 const imageData = [
@@ -59,14 +59,6 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.triangle} />
-      <View style={styles.rectangle}>
-        <Text style={styles.text}>Muhammad Alif Syafan</Text>
-      </View>
-      <View style={styles.pill}>
-        <Text style={styles.text}>105841114422</Text>
-      </View>
-
       {/* Grid Gambar 3x3 */}
       <View style={styles.gridContainer}>
         {imageData.map((imageSet, index) => (
@@ -105,48 +97,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     padding: 16,
   },
-  triangle: {
-    width: 0,
-    height: 0,
-    backgroundColor: "transparent",
-    borderStyle: "solid",
-    borderLeftWidth: 50,
-    borderRightWidth: 50,
-    borderBottomWidth: 100,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "#e74c3c",
-    marginBottom: 30,
-  },
-  rectangle: {
-    width: 280,
-    height: 70,
-    backgroundColor: "#3498db",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-    marginBottom: 30,
-    paddingHorizontal: 10,
-  },
-  pill: {
-    width: 280,
-    height: 70,
-    backgroundColor: "#2ecc71",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 35,
-    paddingHorizontal: 10,
-  },
-  text: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     width: 306, // (100 + 2) * 3
-    marginTop: 30,
     justifyContent: "center",
   },
   image: {
