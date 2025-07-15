@@ -66,28 +66,43 @@ export default function Index() {
 
   /**
    * Menangani klik pada gambar
+   * Setiap klik akan meningkatkan skala gambar sampai maksimum 2x
    * @param {number} index - Indeks gambar yang diklik
    */
   const handlePress = (index) => {
-    // Pastikan hanya memproses jika klik kurang dari 2 kali
-    if (clickCounts[index] < 2) {
-      setClickCounts(prevCounts => {
-        const newCounts = [...prevCounts];
-        newCounts[index] += 1;
-        return newCounts;
-      });
-    }
+    setClickCounts(prevCounts => {
+      const newCounts = [...prevCounts];
+      // Tingkatkan counter klik untuk gambar yang diklik
+      newCounts[index] += 1;
+      return newCounts;
+    });
   };
 
   /**
    * Menentukan skala gambar berdasarkan jumlah klik
+   * Klik pertama: 1.2x, klik kedua: 1.4x, dst sampai maksimum 2x
    * @param {number} count - Jumlah klik pada gambar
-   * @returns {number} Skala yang sesuai (maksimal 2x)
+   * @returns {number} Skala yang sesuai dengan maksimum 2x
    */
   const getScale = (count) => {
-    if (count === 1) return 1.2;
-    if (count === 2) return 2.0; // Maksimal 2x
-    return 1;
+    if (count === 0) return 1;
+
+    // Setiap klik menambah skala sebesar 0.2x
+    const scale = 1 + (count * 0.2);
+
+    // Batasi skala maksimum pada 2x
+    return Math.min(scale, 2.0);
+  };
+
+  /**
+   * Menentukan gambar yang akan ditampilkan berdasarkan jumlah klik
+   * Klik ganjil: gambar alternatif, klik genap: gambar utama
+   * @param {Object} imageSet - Set gambar yang berisi main dan alternate
+   * @param {number} count - Jumlah klik pada gambar
+   * @returns {string} URL gambar yang akan ditampilkan
+   */
+  const getCurrentImage = (imageSet, count) => {
+    return count % 2 === 1 ? imageSet.alternate : imageSet.main;
   };
 
   /**
@@ -104,33 +119,42 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      {/* Grid gambar 3x3 */}
+      {/* Grid gambar 3x3 dengan penskalaan individual */}
       <View style={styles.gridContainer}>
-        {imageData.map((imageSet, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handlePress(index)}
-            activeOpacity={0.8}
-            style={styles.imageContainer}
-          >
-            <Image
-              source={{
-                uri: imageErrors[index]
-                  ? 'https://via.placeholder.com/100?text=Error'
-                  : clickCounts[index] % 2 === 1
-                    ? imageSet.alternate
-                    : imageSet.main
-              }}
+        {imageData.map((imageSet, index) => {
+          const currentScale = getScale(clickCounts[index]);
+          const currentImage = getCurrentImage(imageSet, clickCounts[index]);
+
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handlePress(index)}
+              activeOpacity={0.8}
               style={[
-                styles.image,
+                styles.imageContainer,
                 {
-                  transform: [{ scale: getScale(clickCounts[index]) }]
+                  // Perbesar area container untuk mengakomodasi penskalaan
+                  zIndex: clickCounts[index] > 0 ? 10 : 1,
                 }
               ]}
-              onError={() => handleImageError(index)}
-            />
-          </TouchableOpacity>
-        ))}
+            >
+              <Image
+                source={{
+                  uri: imageErrors[index]
+                    ? 'https://via.placeholder.com/100?text=Error'
+                    : currentImage
+                }}
+                style={[
+                  styles.image,
+                  {
+                    transform: [{ scale: currentScale }]
+                  }
+                ]}
+                onError={() => handleImageError(index)}
+              />
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -148,13 +172,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     width: 306,  // (100 + 2) * 3
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   imageContainer: {
     width: 100,
     height: 100,
     margin: 1,
-    overflow: 'visible'
+    overflow: 'visible', // Penting untuk memungkinkan penskalaan terlihat
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   image: {
     width: '100%',
