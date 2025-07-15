@@ -12,66 +12,55 @@ export default function Index() {
   );
 
   const imageData = [
-    {
-      main: "https://images.alphacoders.com/134/1341120.png",
-      alternate: "https://images5.alphacoders.com/462/462370.jpg"
-    },
-    {
-      main: "https://images5.alphacoders.com/133/1330264.png",
-      alternate: "https://images4.alphacoders.com/417/41774.jpg"
-    },
-    {
-      main: "https://images.alphacoders.com/824/824838.jpg",
-      alternate: "https://images.alphacoders.com/773/773531.jpg"
-    },
-    {
-      main: "https://images4.alphacoders.com/135/1358294.jpeg",
-      alternate: "https://images3.alphacoders.com/121/121797.jpg"
-    },
-    {
-      main: "https://images3.alphacoders.com/133/1330268.png",
-      alternate: "https://images2.alphacoders.com/437/437349.jpg"
-    },
-    {
-      main: "https://images2.alphacoders.com/634/6340.jpg",
-      alternate: "https://images6.alphacoders.com/681/681657.jpg"
-    },
-    {
-      main: "https://images.alphacoders.com/135/1357436.jpeg",
-      alternate: "https://images8.alphacoders.com/136/thumb-1920-1363709.png"
-    },
-    {
-      main: "https://images.alphacoders.com/554/55473.jpg",
-      alternate: "https://images4.alphacoders.com/242/242474.jpg"
-    },
-    {
-      main: "https://images7.alphacoders.com/456/456120.jpg",
-      alternate: "https://images6.alphacoders.com/407/407482.jpg"
-    }
+    { main: "https://images.alphacoders.com/134/1341120.png", alternate: "https://images5.alphacoders.com/462/462370.jpg" },
+    { main: "https://images5.alphacoders.com/133/1330264.png", alternate: "https://images4.alphacoders.com/417/41774.jpg" },
+    { main: "https://images.alphacoders.com/824/824838.jpg", alternate: "https://images.alphacoders.com/773/773531.jpg" },
+    { main: "https://images4.alphacoders.com/135/1358294.jpeg", alternate: "https://images3.alphacoders.com/121/121797.jpg" },
+    { main: "https://images3.alphacoders.com/133/1330268.png", alternate: "https://images2.alphacoders.com/437/437349.jpg" },
+    { main: "https://images2.alphacoders.com/634/6340.jpg", alternate: "https://images6.alphacoders.com/681/681657.jpg" },
+    { main: "https://images.alphacoders.com/135/1357436.jpeg", alternate: "https://images8.alphacoders.com/136/thumb-1920-1363709.png" },
+    { main: "https://images.alphacoders.com/554/55473.jpg", alternate: "https://images4.alphacoders.com/242/242474.jpg" },
+    { main: "https://images7.alphacoders.com/456/456120.jpg", alternate: "https://images6.alphacoders.com/407/407482.jpg" }
   ];
 
-  // Fungsi untuk menangani klik gambar
+  /**
+   * Menangani logika saat gambar ditekan.
+   * Fungsi ini akan mengubah skala gambar dan sumbernya berdasarkan jumlah klik.
+   * Siklusnya adalah:
+   * - Klik 1: Skala menjadi 1.2x.
+   * - Klik 2: Skala menjadi 2.0x (maksimum).
+   * - Klik 3: Reset ke skala 1x.
+   * @param {number} index - Indeks gambar yang ditekan.
+   */
   const handleImagePress = (index) => {
     setImageStates(prevStates => {
+      // Buat salinan dari array state agar tidak mengubah state asli secara langsung.
       const newStates = [...prevStates];
       const currentState = newStates[index];
 
-      // Maksimal 2 klik per gambar
-      if (currentState.clickCount < 2) {
-        let newScale;
-        if (currentState.clickCount === 0) {
-          newScale = 1.2; // Klik pertama: scale 1.2x
-        } else if (currentState.clickCount === 1) {
-          newScale = 2.4;
-        }
+      // Gunakan modulo untuk membuat siklus 3 klik (0 -> 1 -> 2 -> 0)
+      const newClickCount = (currentState.clickCount + 1) % 3;
 
-        newStates[index] = {
-          ...currentState,
-          isAlternate: !currentState.isAlternate,
-          scale: newScale,
-          clickCount: currentState.clickCount + 1
-        };
+      let newScale = 1;
+      switch (newClickCount) {
+        case 1: // Klik pertama
+          newScale = 1.2;
+          break;
+        case 2: // Klik kedua
+          newScale = 2.4; // Skala maksimum adalah 2x
+          break;
+        case 0: // Klik ketiga akan me-reset clickCount ke 0
+          newScale = 1; // Reset skala ke 1x
+          break;
       }
+
+      // Perbarui state hanya untuk gambar yang diklik (penskalaan individual)
+      newStates[index] = {
+        ...currentState,
+        isAlternate: !currentState.isAlternate,
+        scale: newScale,
+        clickCount: newClickCount
+      };
 
       return newStates;
     });
@@ -86,6 +75,7 @@ export default function Index() {
             style={[
               styles.imageContainer,
               {
+                // Naikkan zIndex saat gambar diperbesar agar tidak terpotong oleh gambar lain.
                 zIndex: imageStates[index].scale > 1 ? 10 : 1,
               }
             ]}
@@ -101,7 +91,9 @@ export default function Index() {
                 style={[
                   styles.image,
                   {
+                    // Terapkan transformasi skala ke gambar
                     transform: [{ scale: imageStates[index].scale }],
+                    // zIndex juga diterapkan di sini untuk memastikan gambar itu sendiri yang naik
                     zIndex: imageStates[index].scale > 1 ? 10 : 1,
                   }
                 ]}
@@ -115,6 +107,7 @@ export default function Index() {
   );
 }
 
+// StyleSheet dikembalikan ke versi asli Anda.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -142,8 +135,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   imageContainer: {
-    width: 90,
-    height: 90,
+    width: 90, // Ukuran sel yang sama untuk semua gambar
+    height: 90, // Ukuran sel yang sama untuk semua gambar
     margin: 0,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
