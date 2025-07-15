@@ -23,15 +23,7 @@ export default function Index() {
     { main: "https://images7.alphacoders.com/456/456120.jpg", alternate: "https://images6.alphacoders.com/407/407482.jpg" }
   ];
 
-  /**
-   * Menangani logika saat gambar ditekan.
-   * Fungsi ini akan mengubah skala gambar dan sumbernya berdasarkan jumlah klik.
-   * Siklusnya adalah:
-   * - Klik 1: Skala menjadi 1.2x.
-   * - Klik 2: Skala menjadi 2.0x (maksimum).
-   * - Klik 3: Reset ke skala 1x.
-   * @param {number} index - Indeks gambar yang ditekan.
-   */
+   
   const handleImagePress = (index) => {
     setImageStates(prevStates => {
       // Buat salinan dari array state agar tidak mengubah state asli secara langsung.
@@ -43,18 +35,17 @@ export default function Index() {
 
       let newScale = 1;
       switch (newClickCount) {
-        case 1: // Klik pertama
+        case 1:
           newScale = 1.2;
           break;
-        case 2: // Klik kedua
-          newScale = 2.4; // Skala maksimum adalah 2x
+        case 2:
+          newScale = 2.0;
           break;
-        case 0: // Klik ketiga akan me-reset clickCount ke 0
-          newScale = 1; // Reset skala ke 1x
+        case 0:
+          newScale = 1.0;
           break;
       }
 
-      // Perbarui state hanya untuk gambar yang diklik (penskalaan individual)
       newStates[index] = {
         ...currentState,
         isAlternate: !currentState.isAlternate,
@@ -75,7 +66,6 @@ export default function Index() {
             style={[
               styles.imageContainer,
               {
-                // Naikkan zIndex saat gambar diperbesar agar tidak terpotong oleh gambar lain.
                 zIndex: imageStates[index].scale > 1 ? 10 : 1,
               }
             ]}
@@ -135,8 +125,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   imageContainer: {
-    width: 90, // Ukuran sel yang sama untuk semua gambar
-    height: 90, // Ukuran sel yang sama untuk semua gambar
+    width: 90, // Penentuan ukuran sel gambar yang sama
+    height: 90, // Penentuan ukuran sel gambar yang sama
     margin: 0,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
