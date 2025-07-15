@@ -15,7 +15,6 @@ const galleryImages = [
 ];
 
 export default function InteractiveImageGrid() {
-  // State untuk melacak status setiap gambar (apakah versi alternatif & skala pembesarannya)
   const [imageStates, setImageStates] = useState(
     galleryImages.map(() => ({
       isAlternate: false,
@@ -25,23 +24,31 @@ export default function InteractiveImageGrid() {
 
   const handleImagePress = (index) => {
     setImageStates((currentStates) => {
-      // Buat salinan state agar tidak mengubah state asli secara langsung
       const newStates = [...currentStates];
       const targetState = { ...newStates[index] };
-      const MAX_SCALE = 2.0;
+      const MAX_SCALE = 2.0; // Batas maksimal skala
 
-      // Jika skala sudah mencapai atau melebihi maksimal, reset ke kondisi awal
+      // Cek jika skala sudah mencapai atau melebihi batas maksimal
       if (targetState.scale >= MAX_SCALE) {
+        // Reset ke kondisi awal jika sudah maksimal
         targetState.isAlternate = false;
         targetState.scale = 1.0;
       } else {
-        // Jika belum, tampilkan gambar alternatif dan perbesar ukurannya
+        // Tampilkan gambar alternatif
         targetState.isAlternate = true;
+
+        // **FITUR 1: Skala meningkat 1.2x pada setiap klik**
         const newScale = targetState.scale * 1.2;
-        // Gunakan Math.min untuk memastikan skala tidak melebihi MAX_SCALE
+
+        // **FITUR 2: Skala dibatasi hingga maksimal 2x**
+        // Math.min akan memilih nilai yang lebih kecil antara hasil perkalian dan MAX_SCALE.
+        // Ini memastikan skala tidak akan pernah melebihi 2.0.
         targetState.scale = Math.min(newScale, MAX_SCALE);
       }
 
+      // **FITUR 3: Perubahan hanya berlaku untuk gambar yang diklik**
+      // Hanya elemen pada 'index' yang spesifik yang diperbarui.
+      // Elemen lain di dalam array 'newStates' tetap tidak berubah.
       newStates[index] = targetState;
       return newStates;
     });
@@ -50,56 +57,45 @@ export default function InteractiveImageGrid() {
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
-        {galleryImages.map((image, index) => {
-          const state = imageStates[index];
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleImagePress(index)}
-              activeOpacity={0.8}
-            >
-              <Image
-                source={{
-                  uri: state.isAlternate ? image.alternateUrl : image.mainUrl
-                }}
-                style={[
-                  styles.imageTile,
-                  {
-                    transform: [{ scale: state.scale }],
-                    // zIndex memastikan gambar yang membesar akan tampil di atas gambar lain
-                    zIndex: state.scale > 1 ? 1 : 0
-                  },
-                ]}
-              />
-            </TouchableOpacity>
-          );
-        })}
+        {galleryImages.map((image, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleImagePress(index)}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={{ uri: imageStates[index].isAlternate ? image.alternateUrl : image.mainUrl }}
+              style={[
+                styles.imageTile,
+                { transform: [{ scale: imageStates[index].scale }] },
+                { zIndex: imageStates[index].scale > 1 ? 1 : 0 },
+              ]}
+            />
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Kontainer utama untuk menengahkan grid
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#2c3e50", // Latar belakang gelap agar gambar lebih menonjol
+    backgroundColor: "#2c3e50",
   },
-  // Kontainer untuk grid 3x3
   grid: {
-    width: 312, // (lebar 100 + margin 2*2) * 3 kolom = 312
+    width: 312,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
   },
-  // Style untuk setiap sel gambar
   imageTile: {
     width: 100,
     height: 100,
     margin: 2,
-    backgroundColor: "#34495e", // Warna placeholder saat gambar sedang loading
+    backgroundColor: "#34495e",
     borderRadius: 8,
   },
 });
