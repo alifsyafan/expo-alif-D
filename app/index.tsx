@@ -23,7 +23,7 @@ export default function Index() {
     { main: "https://images7.alphacoders.com/456/456120.jpg", alternate: "https://images6.alphacoders.com/407/407482.jpg" }
   ];
 
-   
+
   const handleImagePress = (index) => {
     setImageStates(prevStates => {
       // Buat salinan dari array state agar tidak mengubah state asli secara langsung.
@@ -39,12 +39,16 @@ export default function Index() {
           newScale = 1.2;
           break;
         case 2:
-          newScale = 2.0;
+          newScale = 2.0; // Maksimum skala 2x
           break;
         case 0:
+        default:
           newScale = 1.0;
           break;
       }
+
+      // Pastikan skala tidak melebihi batas maksimum 2x
+      newScale = Math.min(newScale, 2.0);
 
       newStates[index] = {
         ...currentState,
@@ -125,8 +129,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   imageContainer: {
-    width: 90, // Penentuan ukuran sel gambar yang sama
-    height: 90, // Penentuan ukuran sel gambar yang sama
+    width: 90, // Ukuran sel gambar yang sama secara eksplisit
+    height: 90, // Ukuran sel gambar yang sama secara eksplisit
     margin: 0,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
@@ -134,10 +138,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#e9ecef',
+    overflow: 'hidden', // Mencegah gambar yang diperbesar keluar dari container
   },
   image: {
-    width: 86,
-    height: 86,
+    width: 86, // Ukuran gambar konsisten
+    height: 86, // Ukuran gambar konsisten
     borderRadius: 10,
   },
   touchableArea: {
