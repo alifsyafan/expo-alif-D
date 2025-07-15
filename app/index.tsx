@@ -41,20 +41,42 @@ const imageData = [
 ];
 
 export default function Index() {
-  const [clickCounts, setClickCounts] = useState(Array(9).fill(0));
+  // State untuk menyimpan status setiap gambar
+  const [imageStates, setImageStates] = useState(
+    Array(9).fill().map(() => ({
+      clickCount: 0,      // Jumlah klik (0, 1, atau 2)
+      isAlternate: false, // Apakah gambar alternatif ditampilkan
+      scale: 1            // Skala transformasi saat ini
+    }))
+  );
 
   const handlePress = (index) => {
-    if (clickCounts[index] < 2) {
-      const newCounts = [...clickCounts];
-      newCounts[index] += 1;
-      setClickCounts(newCounts);
-    }
-  };
+    setImageStates(prevStates => {
+      const newStates = [...prevStates];
+      const currentState = { ...newStates[index] };
 
-  const getScale = (count) => {
-    if (count === 1) return 1.2;
-    if (count === 2) return 2.4;
-    return 1;
+      // Reset jika sudah mencapai klik maksimal
+      if (currentState.clickCount >= 2) {
+        currentState.clickCount = 0;
+        currentState.isAlternate = false;
+        currentState.scale = 1;
+      }
+      // Klik pertama
+      else if (currentState.clickCount === 0) {
+        currentState.clickCount = 1;
+        currentState.isAlternate = true;
+        currentState.scale = 1.2;
+      }
+      // Klik kedua
+      else {
+        currentState.clickCount = 2;
+        currentState.isAlternate = true;
+        currentState.scale = 2.0;
+      }
+
+      newStates[index] = currentState;
+      return newStates;
+    });
   };
 
   return (
@@ -69,16 +91,15 @@ export default function Index() {
           >
             <Image
               source={{
-                uri:
-                  clickCounts[index] % 2 === 1
-                    ? imageSet.alternate
-                    : imageSet.main,
+                uri: imageStates[index].isAlternate
+                  ? imageSet.alternate
+                  : imageSet.main
               }}
               style={[
                 styles.image,
                 {
-                  transform: [{ scale: getScale(clickCounts[index]) }],
-                  zIndex: clickCounts[index] > 0 ? 1 : 0,
+                  transform: [{ scale: imageStates[index].scale }],
+                  zIndex: imageStates[index].clickCount > 0 ? 1 : 0,
                 },
               ]}
             />
