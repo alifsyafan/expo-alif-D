@@ -40,9 +40,23 @@ const imageData = [
   }
 ];
 
+/**
+ * Komponen utama untuk menampilkan grid gambar 3x3
+ * 
+ * Fitur:
+ * - Grid gambar 3x3 dengan 9 sel berukuran sama
+ * - Setiap gambar memiliki 2 versi (utama dan alternatif)
+ * - Skala gambar maksimal 2x
+ * - Penanganan error untuk URL gambar tidak valid
+ */
 export default function Index() {
   const [clickCounts, setClickCounts] = useState(Array(9).fill(0));
+  const [imageErrors, setImageErrors] = useState(Array(9).fill(false));
 
+  /**
+   * Menangani klik pada gambar
+   * @param {number} index - Indeks gambar yang diklik
+   */
   const handlePress = (index) => {
     if (clickCounts[index] < 2) {
       const newCounts = [...clickCounts];
@@ -51,10 +65,25 @@ export default function Index() {
     }
   };
 
+  /**
+   * Menentukan skala gambar berdasarkan jumlah klik
+   * @param {number} count - Jumlah klik pada gambar
+   * @returns {number} Skala yang sesuai
+   */
   const getScale = (count) => {
     if (count === 1) return 1.2;
-    if (count === 2) return 2.4;
+    if (count === 2) return 2.0; // Diperbaiki menjadi 2.0 (maksimal 2x)
     return 1;
+  };
+
+  /**
+   * Menangani error saat memuat gambar
+   * @param {number} index - Indeks gambar yang error
+   */
+  const handleImageError = (index) => {
+    const newErrors = [...imageErrors];
+    newErrors[index] = true;
+    setImageErrors(newErrors);
   };
 
   return (
@@ -69,9 +98,11 @@ export default function Index() {
           >
             <Image
               source={{
-                uri: clickCounts[index] % 2 === 1
-                  ? imageSet.alternate
-                  : imageSet.main
+                uri: imageErrors[index]
+                  ? 'https://via.placeholder.com/100?text=Error'
+                  : clickCounts[index] % 2 === 1
+                    ? imageSet.alternate
+                    : imageSet.main
               }}
               style={[
                 styles.image,
@@ -79,6 +110,7 @@ export default function Index() {
                   transform: [{ scale: getScale(clickCounts[index]) }]
                 }
               ]}
+              onError={() => handleImageError(index)}
             />
           </TouchableOpacity>
         ))}
@@ -106,6 +138,7 @@ const styles = StyleSheet.create({
     height: 100,
     margin: 1,
     backgroundColor: '#ddd',
-    borderRadius: 4
+    borderRadius: 4,
+    resizeMode: 'cover'
   }
 });
