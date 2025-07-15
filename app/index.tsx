@@ -58,11 +58,20 @@ export default function Index() {
 
       // Maksimal 2 klik per gambar
       if (currentState.clickCount < 2) {
+        // Logika penskalaan yang benar:
+        // Klik 1: scale 1.2x (dari 1x)
+        // Klik 2: scale 2.4x (dari 1.2x) - ini adalah 2x dari scale sebelumnya
+        let newScale;
+        if (currentState.clickCount === 0) {
+          newScale = 1.2; // Klik pertama
+        } else if (currentState.clickCount === 1) {
+          newScale = 2.4; // Klik kedua (2x dari 1.2)
+        }
+
         newStates[index] = {
           ...currentState,
           isAlternate: !currentState.isAlternate,
-          scale: currentState.scale === 1 ? 1.2 :
-            currentState.scale === 1.2 ? 2.4 : 1,
+          scale: newScale,
           clickCount: currentState.clickCount + 1
         };
       }
@@ -83,27 +92,46 @@ export default function Index() {
         <Text style={styles.text}>105841114422</Text>
       </View>
 
-      {/* Grid gambar 3x3 */}
+      {/* Grid gambar 3x3 dengan visual yang jelas */}
       <View style={styles.gridContainer}>
         {imageData.map((item, index) => (
-          <TouchableOpacity
+          <View
             key={index}
-            style={styles.imageContainer}
-            onPress={() => handleImagePress(index)}
+            style={[
+              styles.imageContainer,
+              {
+                zIndex: imageStates[index].scale > 1 ? 10 : 1, // Container yang membesar di atas
+              }
+            ]}
           >
-            <ExpoImage
-              source={{
-                uri: imageStates[index].isAlternate ? item.alternate : item.main
-              }}
-              style={[
-                styles.image,
-                {
-                  transform: [{ scale: imageStates[index].scale }]
-                }
-              ]}
-              contentFit="cover"
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.touchableArea}
+              onPress={() => handleImagePress(index)}
+            >
+              <ExpoImage
+                source={{
+                  uri: imageStates[index].isAlternate ? item.alternate : item.main
+                }}
+                style={[
+                  styles.image,
+                  {
+                    transform: [{ scale: imageStates[index].scale }],
+                    zIndex: imageStates[index].scale > 1 ? 10 : 1, // Gambar yang membesar di atas
+                  }
+                ]}
+                contentFit="cover"
+              />
+              {/* Debug info untuk verifikasi - dapat dihapus */}
+              <View style={styles.debugContainer}>
+                <Text style={styles.debugText}>
+                  Scale: {imageStates[index].scale}x
+                </Text>
+                <Text style={styles.debugText}>
+                  Clicks: {imageStates[index].clickCount}/2
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
     </View>
@@ -162,27 +190,65 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // Kontainer untuk grid gambar
+  // Kontainer untuk grid gambar 3x3 - DIPERBAIKI
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 300,
-    height: 300,
+    justifyContent: 'space-between', // Distribusi merata
+    alignItems: 'flex-start',
+    width: 300, // Diperbesar untuk memberi ruang scale
+    height: 300, // Diperbesar untuk memberi ruang scale
+    backgroundColor: '#ffffff',
+    padding: 15, // Padding diperbesar
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
-  // Kontainer untuk setiap gambar
+  // Kontainer untuk setiap gambar - DIPERBAIKI
   imageContainer: {
-    width: 90,
-    height: 90,
-    margin: 5,
+    width: 80, // Ukuran tetap untuk grid 3x3
+    height: 80, // Ukuran tetap untuk grid 3x3
+    marginBottom: 10,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    // overflow: 'hidden', // DIHAPUS - ini mencegah gambar membesar
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
   },
-  // Gaya untuk gambar
+  // Gaya untuk gambar - DIPERBAIKI
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: 76, // Sedikit lebih kecil dari container
+    height: 76, // Sedikit lebih kecil dari container
+    borderRadius: 10,
+  },
+  // Debug container untuk verifikasi penskalaan
+  debugContainer: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  debugText: {
+    color: 'white',
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+  // Touchable area untuk klik
+  touchableArea: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
