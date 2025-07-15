@@ -8,7 +8,6 @@ import {
   ScrollView,
 } from "react-native";
 
-// Data gambar dengan sumber yang berbeda dan struktur yang dimodifikasi
 const photoCollection = [
   { idx: 1, primaryImage: "https://images.alphacoders.com/134/1341120.png", secondaryImage: "https://images5.alphacoders.com/462/462370.jpg" },
   { idx: 2, primaryImage: "https://images5.alphacoders.com/133/1330264.png", secondaryImage: "https://images4.alphacoders.com/417/41774.jpg" },
@@ -52,14 +51,28 @@ export default function Index() {
     });
   };
 
+  // Fungsi untuk mereset scale gambar
+  const resetScale = (imageIndex) => {
+    setPhotoStates((previousStates) => {
+      const updatedStates = [...previousStates];
+      updatedStates[imageIndex] = {
+        ...updatedStates[imageIndex],
+        currentScale: 1,
+      };
+      return updatedStates;
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
+
       {/* Grid gambar 3x3 dengan interaksi */}
       <View style={styles.photoGrid}>
         {photoCollection.map((photo, index) => (
           <TouchableOpacity
             key={photo.idx}
             onPress={() => onImageTap(index)}
+            onLongPress={() => resetScale(index)}
             style={styles.imageWrapper}
           >
             <Image
@@ -73,6 +86,12 @@ export default function Index() {
                 { transform: [{ scale: photoStates[index].currentScale }] },
               ]}
             />
+            {/* Indikator scale */}
+            <View style={styles.scaleIndicator}>
+              <Text style={styles.scaleText}>
+                {photoStates[index].currentScale.toFixed(1)}x
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>
@@ -85,6 +104,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 35,
     backgroundColor: "#F8F8F8",
+    minHeight: "100%",
   },
   headerBox: {
     backgroundColor: "#1a1a1a",
@@ -104,68 +124,54 @@ const styles = StyleSheet.create({
     color: "#87CEEB",
     fontSize: 16,
   },
-  fruitContainer: {
-    width: 210,
-    height: 110,
-    backgroundColor: "#808080",
-    borderRadius: 12,
-    overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 25,
-  },
-  fruitImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  triangleShape: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 45,
-    borderRightWidth: 45,
-    borderBottomWidth: 70,
-    borderStyle: "solid",
-    backgroundColor: "transparent",
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "#8A2BE2",
-    marginBottom: 25,
-  },
-  pillContainer: {
-    backgroundColor: "#E6F3FF",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 35,
-  },
-  pillIcon: {
-    fontSize: 18,
-    color: "#FF69B4",
-    textAlign: "center",
-  },
-  pillNumber: {
-    fontSize: 17,
-    color: "#FF69B4",
-    textAlign: "center",
-    fontWeight: "500",
-  },
   photoGrid: {
     width: 330,
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
-    alignItems: "center",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 25,
   },
   imageWrapper: {
-    marginBottom: 12,
+    marginBottom: 15,
     overflow: "visible",
+    width: 100,
+    height: 100,
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
   gridPhoto: {
     width: 100,
     height: 100,
     borderRadius: 12,
+    backgroundColor: "#E0E0E0",
+  },
+  scaleIndicator: {
+    position: "absolute",
+    bottom: -25,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  scaleText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  instructionBox: {
+    backgroundColor: "#E6F3FF",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginTop: 20,
+    alignItems: "flex-start",
+  },
+  instructionText: {
+    fontSize: 14,
+    color: "#2C3E50",
+    marginBottom: 5,
+    textAlign: "left",
   },
 });
