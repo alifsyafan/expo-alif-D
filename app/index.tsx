@@ -53,7 +53,7 @@ export default function Index() {
 
   const getScale = (count) => {
     if (count === 1) return 1.2;
-    if (count === 2) return 2.4;
+    if (count === 2) return 2.0;
     return 1;
   };
 
