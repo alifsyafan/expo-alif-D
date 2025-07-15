@@ -1,7 +1,25 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 
-const imageData = [
+const validateImageData = (data) => {
+  // Pastikan ada tepat 9 item
+  if (data.length !== 9) {
+    console.warn(`Jumlah gambar harus 9, tetapi menerima ${data.length}. Menggunakan data yang diisi otomatis.`);
+
+    const validatedData = Array(9).fill(null).map((_, i) => {
+      return data[i] || {
+        main: `https://via.placeholder.com/100?text=Image${i + 1}`,
+        alternate: `https://via.placeholder.com/100?text=Alt${i + 1}`
+      };
+    });
+
+    return validatedData;
+  }
+
+  return data;
+};
+
+const initialImageData = [
   {
     main: "https://images.alphacoders.com/134/1341120.png",
     alternate: "https://images5.alphacoders.com/462/462370.jpg"
@@ -40,15 +58,8 @@ const imageData = [
   }
 ];
 
-/**
- * Komponen utama untuk menampilkan grid gambar 3x3
- * 
- * Fitur:
- * - Grid gambar 3x3 dengan 9 sel berukuran sama
- * - Setiap gambar memiliki 2 versi (utama dan alternatif)
- * - Skala gambar maksimal 2x
- * - Penanganan error untuk URL gambar tidak valid
- */
+const imageData = validateImageData(initialImageData);
+
 export default function Index() {
   const [clickCounts, setClickCounts] = useState(Array(9).fill(0));
   const [imageErrors, setImageErrors] = useState(Array(9).fill(false));
@@ -58,21 +69,24 @@ export default function Index() {
    * @param {number} index - Indeks gambar yang diklik
    */
   const handlePress = (index) => {
+    // Pastikan hanya memproses jika klik kurang dari 2 kali
     if (clickCounts[index] < 2) {
-      const newCounts = [...clickCounts];
-      newCounts[index] += 1;
-      setClickCounts(newCounts);
+      setClickCounts(prevCounts => {
+        const newCounts = [...prevCounts];
+        newCounts[index] += 1;
+        return newCounts;
+      });
     }
   };
 
   /**
    * Menentukan skala gambar berdasarkan jumlah klik
    * @param {number} count - Jumlah klik pada gambar
-   * @returns {number} Skala yang sesuai
+   * @returns {number} Skala yang sesuai (maksimal 2x)
    */
   const getScale = (count) => {
     if (count === 1) return 1.2;
-    if (count === 2) return 2.0; // Diperbaiki menjadi 2.0 (maksimal 2x)
+    if (count === 2) return 2.0; // Maksimal 2x
     return 1;
   };
 
@@ -81,9 +95,11 @@ export default function Index() {
    * @param {number} index - Indeks gambar yang error
    */
   const handleImageError = (index) => {
-    const newErrors = [...imageErrors];
-    newErrors[index] = true;
-    setImageErrors(newErrors);
+    setImageErrors(prevErrors => {
+      const newErrors = [...prevErrors];
+      newErrors[index] = true;
+      return newErrors;
+    });
   };
 
   return (
@@ -95,6 +111,7 @@ export default function Index() {
             key={index}
             onPress={() => handlePress(index)}
             activeOpacity={0.8}
+            style={styles.imageContainer}
           >
             <Image
               source={{
@@ -133,10 +150,15 @@ const styles = StyleSheet.create({
     width: 306,  // (100 + 2) * 3
     justifyContent: 'center'
   },
-  image: {
+  imageContainer: {
     width: 100,
     height: 100,
     margin: 1,
+    overflow: 'visible'
+  },
+  image: {
+    width: '100%',
+    height: '100%',
     backgroundColor: '#ddd',
     borderRadius: 4,
     resizeMode: 'cover'
