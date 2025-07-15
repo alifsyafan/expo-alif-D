@@ -1,154 +1,159 @@
-import { Image as ExpoImage } from "expo-image";
-import { useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+
+const imageData = [
+  {
+    main: "https://images.alphacoders.com/134/1341120.png",
+    alternate: "https://images5.alphacoders.com/462/462370.jpg"
+  },
+  {
+    main: "https://images5.alphacoders.com/133/1330264.png",
+    alternate: "https://images4.alphacoders.com/417/41774.jpg"
+  },
+  {
+    main: "https://images.alphacoders.com/824/824838.jpg",
+    alternate: "https://images.alphacoders.com/773/773531.jpg"
+  },
+  {
+    main: "https://images4.alphacoders.com/135/1358294.jpeg",
+    alternate: "https://images3.alphacoders.com/121/121797.jpg"
+  },
+  {
+    main: "https://images3.alphacoders.com/133/1330268.png",
+    alternate: "https://images2.alphacoders.com/437/437349.jpg"
+  },
+  {
+    main: "https://images2.alphacoders.com/634/6340.jpg",
+    alternate: "https://images6.alphacoders.com/681/681657.jpg"
+  },
+  {
+    main: "https://images.alphacoders.com/135/1357436.jpeg",
+    alternate: "https://images.alphacoders.com/824/824838.jpg"
+  },
+  {
+    main: "https://images.alphacoders.com/554/55473.jpg",
+    alternate: "https://images4.alphacoders.com/242/242474.jpg"
+  },
+  {
+    main: "https://images7.alphacoders.com/456/456120.jpg",
+    alternate: "https://images6.alphacoders.com/407/407482.jpg"
+  }
+];
 
 export default function Index() {
-  const [imageStates, setImageStates] = useState(
-    Array.from({ length: 9 }, () => ({
-      isAlternate: false,
-      scale: 1,
-      clickCount: 0
-    }))
-  );
+  const [clickCounts, setClickCounts] = useState(Array(9).fill(0));
 
-  const imageData = [
-    { main: "https://images.alphacoders.com/134/1341120.png", alternate: "https://images5.alphacoders.com/462/462370.jpg" },
-    { main: "https://images5.alphacoders.com/133/1330264.png", alternate: "https://images4.alphacoders.com/417/41774.jpg" },
-    { main: "https://images.alphacoders.com/824/824838.jpg", alternate: "https://images.alphacoders.com/773/773531.jpg" },
-    { main: "https://images4.alphacoders.com/135/1358294.jpeg", alternate: "https://images3.alphacoders.com/121/121797.jpg" },
-    { main: "https://images3.alphacoders.com/133/1330268.png", alternate: "https://images2.alphacoders.com/437/437349.jpg" },
-    { main: "https://images2.alphacoders.com/634/6340.jpg", alternate: "https://images6.alphacoders.com/681/681657.jpg" },
-    { main: "https://images.alphacoders.com/135/1357436.jpeg", alternate: "https://images8.alphacoders.com/136/thumb-1920-1363709.png" },
-    { main: "https://images.alphacoders.com/554/55473.jpg", alternate: "https://images4.alphacoders.com/242/242474.jpg" },
-    { main: "https://images7.alphacoders.com/456/456120.jpg", alternate: "https://images6.alphacoders.com/407/407482.jpg" }
-  ];
+  const handlePress = (index) => {
+    if (clickCounts[index] < 2) {
+      const newCounts = [...clickCounts];
+      newCounts[index] += 1;
+      setClickCounts(newCounts);
+    }
+  };
 
-
-  const handleImagePress = (index) => {
-    setImageStates(prevStates => {
-      // Buat salinan dari array state agar tidak mengubah state asli secara langsung.
-      const newStates = [...prevStates];
-      const currentState = newStates[index];
-
-      // Gunakan modulo untuk membuat siklus 3 klik (0 -> 1 -> 2 -> 0)
-      const newClickCount = (currentState.clickCount + 1) % 3;
-
-      let newScale = 1;
-      switch (newClickCount) {
-        case 1:
-          newScale = 1.2;
-          break;
-        case 2:
-          newScale = 2.0; // Maksimum skala 2x
-          break;
-        case 0:
-        default:
-          newScale = 1.0;
-          break;
-      }
-
-      // Pastikan skala tidak melebihi batas maksimum 2x
-      newScale = Math.min(newScale, 2.0);
-
-      newStates[index] = {
-        ...currentState,
-        isAlternate: !currentState.isAlternate,
-        scale: newScale,
-        clickCount: newClickCount
-      };
-
-      return newStates;
-    });
+  const getScale = (count) => {
+    if (count === 1) return 1.2;
+    if (count === 2) return 2.4;
+    return 1;
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.triangle} />
+      <View style={styles.rectangle}>
+        <Text style={styles.text}>Muhammad Alif Syafan</Text>
+      </View>
+      <View style={styles.pill}>
+        <Text style={styles.text}>105841114422</Text>
+      </View>
+
+      {/* Grid Gambar 3x3 */}
       <View style={styles.gridContainer}>
-        {imageData.map((item, index) => (
-          <View
+        {imageData.map((imageSet, index) => (
+          <TouchableOpacity
             key={index}
-            style={[
-              styles.imageContainer,
-              {
-                zIndex: imageStates[index].scale > 1 ? 10 : 1,
-              }
-            ]}
+            onPress={() => handlePress(index)}
+            activeOpacity={0.8}
           >
-            <TouchableOpacity
-              style={styles.touchableArea}
-              onPress={() => handleImagePress(index)}
-            >
-              <ExpoImage
-                source={{
-                  uri: imageStates[index].isAlternate ? item.alternate : item.main
-                }}
-                style={[
-                  styles.image,
-                  {
-                    // Terapkan transformasi skala ke gambar
-                    transform: [{ scale: imageStates[index].scale }],
-                    // zIndex juga diterapkan di sini untuk memastikan gambar itu sendiri yang naik
-                    zIndex: imageStates[index].scale > 1 ? 10 : 1,
-                  }
-                ]}
-                contentFit="cover"
-              />
-            </TouchableOpacity>
-          </View>
+            <Image
+              source={{
+                uri:
+                  clickCounts[index] % 2 === 1
+                    ? imageSet.alternate
+                    : imageSet.main,
+              }}
+              style={[
+                styles.image,
+                {
+                  transform: [{ scale: getScale(clickCounts[index]) }],
+                  zIndex: clickCounts[index] > 0 ? 1 : 0,
+                },
+              ]}
+            />
+          </TouchableOpacity>
         ))}
       </View>
     </View>
   );
 }
 
-// StyleSheet dikembalikan ke versi asli Anda.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
+    padding: 16,
+  },
+  triangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: "transparent",
+    borderStyle: "solid",
+    borderLeftWidth: 50,
+    borderRightWidth: 50,
+    borderBottomWidth: 100,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "#e74c3c",
+    marginBottom: 30,
+  },
+  rectangle: {
+    width: 280,
+    height: 70,
+    backgroundColor: "#3498db",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginBottom: 30,
+    paddingHorizontal: 10,
+  },
+  pill: {
+    width: 280,
+    height: 70,
+    backgroundColor: "#2ecc71",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 35,
+    paddingHorizontal: 10,
+  },
+  text: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    width: 270,
-    height: 270,
-    backgroundColor: '#ffffff',
-    padding: 0,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  imageContainer: {
-    width: 90, // Ukuran sel gambar yang sama secara eksplisit
-    height: 90, // Ukuran sel gambar yang sama secara eksplisit
-    margin: 0,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e9ecef',
-    overflow: 'hidden', // Mencegah gambar yang diperbesar keluar dari container
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: 306, // (100 + 2) * 3
+    marginTop: 30,
+    justifyContent: "center",
   },
   image: {
-    width: 86, // Ukuran gambar konsisten
-    height: 86, // Ukuran gambar konsisten
-    borderRadius: 10,
-  },
-  touchableArea: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 100,
+    height: 100,
+    margin: 1,
+    backgroundColor: "#ddd",
+    borderRadius: 4,
   },
 });
