@@ -1,19 +1,42 @@
-import { View, Text, Image, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { DATA_MAHASISWA } from '../../data/mahasiswa';
 
-export default function HomeScreen() {
+export default function DaftarMahasiswaScreen() {
     return (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>Unismuh Makassar</Text>
-            <Image
-                source={require('../../assets/images/unismuh.jpeg')}
-                style={{ width: '100%', height: 400, marginBottom: 15, borderRadius: 10 }}
-                resizeMode="cover"
+        <View style={styles.container}>
+            <Text style={styles.title}>Daftar Mahasiswa</Text>
+
+            <FlatList
+                data={DATA_MAHASISWA}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <Link href={`/user/${item.id}`} asChild>
+                        <TouchableOpacity style={styles.itemContainer}>
+                            <View style={styles.itemInfo}>
+                                <Ionicons name="person-circle-outline" size={24} color="#007AFF" />
+                                <Text style={styles.itemText}>{item.nama}</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                        </TouchableOpacity>
+                    </Link>
+                )}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                contentContainerStyle={{ paddingBottom: 16 }}
             />
-            <Text style={{ fontSize: 16, lineHeight: 22 }}>
-                Universitas Muhammadiyah Makassar (Unismuh Makassar) adalah salah satu perguruan tinggi swasta
-                terkemuka di Indonesia Timur. Terletak di Kota Makassar, Sulawesi Selatan, Unismuh menawarkan berbagai
-                program studi berkualitas yang didukung oleh tenaga pengajar profesional dan fasilitas memadai.
-            </Text>
-        </ScrollView>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#fff' },
+    title: { fontSize: 22, fontWeight: 'bold', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 6 },
+    itemContainer: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        paddingVertical: 14, paddingHorizontal: 20, backgroundColor: '#fff',
+    },
+    itemInfo: { flexDirection: 'row', alignItems: 'center' },
+    itemText: { fontSize: 16, marginLeft: 12, flexShrink: 1 },
+    separator: { height: 1, backgroundColor: '#E5E5EA', marginLeft: 60 },
+});
